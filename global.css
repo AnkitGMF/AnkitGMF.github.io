@@ -6,6 +6,8 @@ html, body {
 
 body {
 	color: #333;
+	background-color: #FAF9F6;
+	/* background-color: black; */
 	margin: 0;
 	font-family: 'Poppins', sans-serif;
 }
