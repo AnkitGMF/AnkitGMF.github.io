@@ -42977,6 +42977,10 @@ var app = (function () {
 
     }
 
+    function cubicInOut(t) {
+        return t < 0.5 ? 4.0 * t * t * t : 0.5 * Math.pow(2.0 * t - 2.0, 3.0) + 1.0;
+    }
+
     const renderer = new WebGLRenderer({alpha:true,antialias:true});
     const camera = new PerspectiveCamera(75,innerWidth/innerHeight,0.1,1000);
     const scene = new Scene();
@@ -42997,6 +43001,9 @@ var app = (function () {
     const mainLight3 = new DirectionalLight(primColor,1);
     mainLight3.position.set(0,5,40);
     scene.add(mainLight3);
+    const mainLight4 = new DirectionalLight(primColor,1);
+    mainLight4.position.set(40,-5,40);
+    scene.add(mainLight4);
     const gradLight = new DirectionalLight(gradColor,1);
     gradLight.position.set(0,5,0);
     scene.add(gradLight);
@@ -43039,6 +43046,25 @@ var app = (function () {
         posZ+=2.2;
     }
 
+    window.addEventListener('scroll',()=>{
+        let aboutScroll = 800;
+        let aboutXZScroll = 0;
+        if(window.pageYOffset<500){
+            aboutXZScroll=window.pageYOffset;
+        }
+        else if(window.pageYOffset>=500){
+            aboutXZScroll=500;
+        }
+        camera.position.x=25-cubicInOut(aboutXZScroll/(aboutScroll-300))*8;
+        camera.position.z=25-cubicInOut(aboutXZScroll/(aboutScroll-300))*8;
+        let aboutYScroll = 0;
+        if(window.pageYOffset>=500 && window.pageYOffset<=800){
+            aboutYScroll=window.pageYOffset-500;
+        }
+        if(window.pageYOffset>800)aboutYScroll=300;
+        camera.position.y=5-cubicInOut(aboutYScroll/(aboutScroll-300))*20;
+        camera.lookAt(40,camera.position.y,40);
+    });
     let maxHeight = [];
     for(let i = 0;i<cubeObj.length;i++){
         maxHeight.push(Math.random()*0.4);
@@ -43055,6 +43081,7 @@ var app = (function () {
         }
 
     }
+
     let heightCounter = 0;
     let maxHeightCtr = 1000;
     function calcHeightCtr(){
@@ -43062,6 +43089,8 @@ var app = (function () {
         if(heightCounter>maxHeightCtr)heightCounter=0;
     }
     genRandomarr();
+
+
     let oldWidth;
     let oldHeight;
     function resize(){
@@ -43099,69 +43128,74 @@ var app = (function () {
     	let div1;
     	let div0;
     	let p;
+    	let a0;
     	let t0;
     	let span;
     	let t2;
     	let ul;
     	let li0;
-    	let a0;
+    	let a1;
     	let t4;
     	let li1;
-    	let a1;
+    	let a2;
     	let t6;
     	let li2;
-    	let a2;
+    	let a3;
     	let t8;
     	let li3;
-    	let a3;
+    	let a4;
 
     	const block = {
     		c: function create() {
     			div1 = element("div");
     			div0 = element("div");
     			p = element("p");
+    			a0 = element("a");
     			t0 = text("Ankit");
     			span = element("span");
     			span.textContent = "Khurana";
     			t2 = space();
     			ul = element("ul");
     			li0 = element("li");
-    			a0 = element("a");
-    			a0.textContent = "Home";
+    			a1 = element("a");
+    			a1.textContent = "Home";
     			t4 = space();
     			li1 = element("li");
-    			a1 = element("a");
-    			a1.textContent = "About";
+    			a2 = element("a");
+    			a2.textContent = "About";
     			t6 = space();
     			li2 = element("li");
-    			a2 = element("a");
-    			a2.textContent = "Skills";
+    			a3 = element("a");
+    			a3.textContent = "Skills";
     			t8 = space();
     			li3 = element("li");
-    			a3 = element("a");
-    			a3.textContent = "Contact";
+    			a4 = element("a");
+    			a4.textContent = "Contact";
     			attr_dev(span, "class", "acsent-color svelte-1hd7qql");
-    			add_location(span, file$1, 5, 16, 91);
+    			add_location(span, file$1, 5, 41, 116);
+    			attr_dev(a0, "href", "www.google.com");
+    			attr_dev(a0, "class", "svelte-1hd7qql");
+    			add_location(a0, file$1, 5, 11, 86);
     			attr_dev(p, "class", "svelte-1hd7qql");
     			add_location(p, file$1, 5, 8, 83);
-    			attr_dev(a0, "class", "acsent-color svelte-1hd7qql");
-    			attr_dev(a0, "href", "www.google.com");
-    			add_location(a0, file$1, 7, 16, 168);
-    			add_location(li0, file$1, 7, 12, 164);
+    			attr_dev(a1, "class", "acsent-color svelte-1hd7qql");
     			attr_dev(a1, "href", "www.google.com");
-    			attr_dev(a1, "class", "svelte-1hd7qql");
-    			add_location(a1, file$1, 8, 16, 247);
-    			add_location(li1, file$1, 8, 12, 243);
+    			add_location(a1, file$1, 7, 16, 197);
+    			add_location(li0, file$1, 7, 12, 193);
     			attr_dev(a2, "href", "www.google.com");
     			attr_dev(a2, "class", "svelte-1hd7qql");
-    			add_location(a2, file$1, 9, 16, 304);
-    			add_location(li2, file$1, 9, 12, 300);
+    			add_location(a2, file$1, 8, 16, 276);
+    			add_location(li1, file$1, 8, 12, 272);
     			attr_dev(a3, "href", "www.google.com");
     			attr_dev(a3, "class", "svelte-1hd7qql");
-    			add_location(a3, file$1, 10, 16, 362);
-    			add_location(li3, file$1, 10, 12, 358);
+    			add_location(a3, file$1, 9, 16, 333);
+    			add_location(li2, file$1, 9, 12, 329);
+    			attr_dev(a4, "href", "www.google.com");
+    			attr_dev(a4, "class", "svelte-1hd7qql");
+    			add_location(a4, file$1, 10, 16, 391);
+    			add_location(li3, file$1, 10, 12, 387);
     			attr_dev(ul, "class", "svelte-1hd7qql");
-    			add_location(ul, file$1, 6, 8, 146);
+    			add_location(ul, file$1, 6, 8, 175);
     			attr_dev(div0, "class", "nav-bar svelte-1hd7qql");
     			add_location(div0, file$1, 4, 4, 52);
     			attr_dev(div1, "class", "container svelte-1hd7qql");
@@ -43174,21 +43208,22 @@ var app = (function () {
     			insert_dev(target, div1, anchor);
     			append_dev(div1, div0);
     			append_dev(div0, p);
-    			append_dev(p, t0);
-    			append_dev(p, span);
+    			append_dev(p, a0);
+    			append_dev(a0, t0);
+    			append_dev(a0, span);
     			append_dev(div0, t2);
     			append_dev(div0, ul);
     			append_dev(ul, li0);
-    			append_dev(li0, a0);
+    			append_dev(li0, a1);
     			append_dev(ul, t4);
     			append_dev(ul, li1);
-    			append_dev(li1, a1);
+    			append_dev(li1, a2);
     			append_dev(ul, t6);
     			append_dev(ul, li2);
-    			append_dev(li2, a2);
+    			append_dev(li2, a3);
     			append_dev(ul, t8);
     			append_dev(ul, li3);
-    			append_dev(li3, a3);
+    			append_dev(li3, a4);
     		},
     		p: noop,
     		i: noop,
@@ -43266,15 +43301,16 @@ var app = (function () {
     			div1 = element("div");
     			t5 = space();
     			div2 = element("div");
-    			attr_dev(h1, "class", "main-head svelte-68f4rm");
+    			attr_dev(h1, "class", "main-head svelte-13dn4ht");
     			add_location(h1, file, 12, 1, 245);
-    			attr_dev(p, "class", "main-para svelte-68f4rm");
+    			attr_dev(p, "class", "main-para svelte-13dn4ht");
     			add_location(p, file, 13, 1, 308);
-    			attr_dev(div0, "class", "container svelte-68f4rm");
+    			attr_dev(div0, "class", "container svelte-13dn4ht");
     			add_location(div0, file, 11, 0, 220);
+    			attr_dev(div1, "class", "home svelte-13dn4ht");
     			add_location(div1, file, 15, 0, 378);
-    			attr_dev(div2, "class", "test svelte-68f4rm");
-    			add_location(div2, file, 16, 0, 413);
+    			attr_dev(div2, "class", "about svelte-13dn4ht");
+    			add_location(div2, file, 16, 0, 426);
     		},
     		l: function claim(nodes) {
     			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
