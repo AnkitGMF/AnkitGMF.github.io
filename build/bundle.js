@@ -33465,6 +33465,117 @@ var app = (function () {
 
     }
 
+    class RingGeometry extends BufferGeometry {
+
+    	constructor( innerRadius = 0.5, outerRadius = 1, thetaSegments = 8, phiSegments = 1, thetaStart = 0, thetaLength = Math.PI * 2 ) {
+
+    		super();
+
+    		this.type = 'RingGeometry';
+
+    		this.parameters = {
+    			innerRadius: innerRadius,
+    			outerRadius: outerRadius,
+    			thetaSegments: thetaSegments,
+    			phiSegments: phiSegments,
+    			thetaStart: thetaStart,
+    			thetaLength: thetaLength
+    		};
+
+    		thetaSegments = Math.max( 3, thetaSegments );
+    		phiSegments = Math.max( 1, phiSegments );
+
+    		// buffers
+
+    		const indices = [];
+    		const vertices = [];
+    		const normals = [];
+    		const uvs = [];
+
+    		// some helper variables
+
+    		let radius = innerRadius;
+    		const radiusStep = ( ( outerRadius - innerRadius ) / phiSegments );
+    		const vertex = new Vector3();
+    		const uv = new Vector2();
+
+    		// generate vertices, normals and uvs
+
+    		for ( let j = 0; j <= phiSegments; j ++ ) {
+
+    			for ( let i = 0; i <= thetaSegments; i ++ ) {
+
+    				// values are generate from the inside of the ring to the outside
+
+    				const segment = thetaStart + i / thetaSegments * thetaLength;
+
+    				// vertex
+
+    				vertex.x = radius * Math.cos( segment );
+    				vertex.y = radius * Math.sin( segment );
+
+    				vertices.push( vertex.x, vertex.y, vertex.z );
+
+    				// normal
+
+    				normals.push( 0, 0, 1 );
+
+    				// uv
+
+    				uv.x = ( vertex.x / outerRadius + 1 ) / 2;
+    				uv.y = ( vertex.y / outerRadius + 1 ) / 2;
+
+    				uvs.push( uv.x, uv.y );
+
+    			}
+
+    			// increase the radius for next row of vertices
+
+    			radius += radiusStep;
+
+    		}
+
+    		// indices
+
+    		for ( let j = 0; j < phiSegments; j ++ ) {
+
+    			const thetaSegmentLevel = j * ( thetaSegments + 1 );
+
+    			for ( let i = 0; i < thetaSegments; i ++ ) {
+
+    				const segment = i + thetaSegmentLevel;
+
+    				const a = segment;
+    				const b = segment + thetaSegments + 1;
+    				const c = segment + thetaSegments + 2;
+    				const d = segment + 1;
+
+    				// faces
+
+    				indices.push( a, b, d );
+    				indices.push( b, c, d );
+
+    			}
+
+    		}
+
+    		// build geometry
+
+    		this.setIndex( indices );
+    		this.setAttribute( 'position', new Float32BufferAttribute( vertices, 3 ) );
+    		this.setAttribute( 'normal', new Float32BufferAttribute( normals, 3 ) );
+    		this.setAttribute( 'uv', new Float32BufferAttribute( uvs, 2 ) );
+
+    	}
+
+    	static fromJSON( data ) {
+
+    		return new RingGeometry( data.innerRadius, data.outerRadius, data.thetaSegments, data.phiSegments, data.thetaStart, data.thetaLength );
+
+    	}
+
+    }
+
     class ShapeGeometry extends BufferGeometry {
 
     	constructor( shapes = new Shape( [ new Vector2( 0, 0.5 ), new Vector2( - 0.5, - 0.5 ), new Vector2( 0.5, - 0.5 ) ] ), curveSegments = 12 ) {
@@ -33639,6 +33750,127 @@ var app = (function () {
     	}
 
     	return data;
+
+    }
+
+    class SphereGeometry extends BufferGeometry {
+
+    	constructor( radius = 1, widthSegments = 32, heightSegments = 16, phiStart = 0, phiLength = Math.PI * 2, thetaStart = 0, thetaLength = Math.PI ) {
+
+    		super();
+    		this.type = 'SphereGeometry';
+
+    		this.parameters = {
+    			radius: radius,
+    			widthSegments: widthSegments,
+    			heightSegments: heightSegments,
+    			phiStart: phiStart,
+    			phiLength: phiLength,
+    			thetaStart: thetaStart,
+    			thetaLength: thetaLength
+    		};
+
+    		widthSegments = Math.max( 3, Math.floor( widthSegments ) );
+    		heightSegments = Math.max( 2, Math.floor( heightSegments ) );
+
+    		const thetaEnd = Math.min( thetaStart + thetaLength, Math.PI );
+
+    		let index = 0;
+    		const grid = [];
+
+    		const vertex = new Vector3();
+    		const normal = new Vector3();
+
+    		// buffers
+
+    		const indices = [];
+    		const vertices = [];
+    		const normals = [];
+    		const uvs = [];
+
+    		// generate vertices, normals and uvs
+
+    		for ( let iy = 0; iy <= heightSegments; iy ++ ) {
+
+    			const verticesRow = [];
+
+    			const v = iy / heightSegments;
+
+    			// special case for the poles
+
+    			let uOffset = 0;
+
+    			if ( iy == 0 && thetaStart == 0 ) {
+
+    				uOffset = 0.5 / widthSegments;
+
+    			} else if ( iy == heightSegments && thetaEnd == Math.PI ) {
+
+    				uOffset = - 0.5 / widthSegments;
+
+    			}
+
+    			for ( let ix = 0; ix <= widthSegments; ix ++ ) {
+
+    				const u = ix / widthSegments;
+
+    				// vertex
+
+    				vertex.x = - radius * Math.cos( phiStart + u * phiLength ) * Math.sin( thetaStart + v * thetaLength );
+    				vertex.y = radius * Math.cos( thetaStart + v * thetaLength );
+    				vertex.z = radius * Math.sin( phiStart + u * phiLength ) * Math.sin( thetaStart + v * thetaLength );
+
+    				vertices.push( vertex.x, vertex.y, vertex.z );
+
+    				// normal
+
+    				normal.copy( vertex ).normalize();
+    				normals.push( normal.x, normal.y, normal.z );
+
+    				// uv
+
+    				uvs.push( u + uOffset, 1 - v );
+
+    				verticesRow.push( index ++ );
+
+    			}
+
+    			grid.push( verticesRow );
+
+    		}
+
+    		// indices
+
+    		for ( let iy = 0; iy < heightSegments; iy ++ ) {
+
+    			for ( let ix = 0; ix < widthSegments; ix ++ ) {
+
+    				const a = grid[ iy ][ ix + 1 ];
+    				const b = grid[ iy ][ ix ];
+    				const c = grid[ iy + 1 ][ ix ];
+    				const d = grid[ iy + 1 ][ ix + 1 ];
+
+    				if ( iy !== 0 || thetaStart > 0 ) indices.push( a, b, d );
+    				if ( iy !== heightSegments - 1 || thetaEnd < Math.PI ) indices.push( b, c, d );
+
+    			}
+
+    		}
+
+    		// build geometry
+
+    		this.setIndex( indices );
+    		this.setAttribute( 'position', new Float32BufferAttribute( vertices, 3 ) );
+    		this.setAttribute( 'normal', new Float32BufferAttribute( normals, 3 ) );
+    		this.setAttribute( 'uv', new Float32BufferAttribute( uvs, 2 ) );
+
+    	}
+
+    	static fromJSON( data ) {
+
+    		return new SphereGeometry( data.radius, data.widthSegments, data.heightSegments, data.phiStart, data.phiLength, data.thetaStart, data.thetaLength );
+
+    	}
 
     }
 
@@ -42990,40 +43222,40 @@ var app = (function () {
     }
 
     const renderer = new WebGLRenderer({alpha:true,antialias:true});
-    const camera = new PerspectiveCamera(75,innerWidth/innerHeight,0.1,1000);
-    const scene = new Scene();
+    const camera$1 = new PerspectiveCamera(75,innerWidth/innerHeight,0.1,1000);
+    const scene$1 = new Scene();
     renderer.setSize(innerWidth,innerHeight);
-    camera.position.set(25,5,25);
-    camera.lookAt(40,5,40);
+    camera$1.position.set(25,5,25);
+    camera$1.lookAt(40,5,40);
 
     const primColor = new Color(0x00ff10);
     const gradColor = new Color(0x00207e);
     const light = new AmbientLight( 0xffffff,1 );
-    scene.add( light );
+    scene$1.add( light );
     const mainLight1 = new DirectionalLight(primColor,1);
     mainLight1.position.set(40,5,40);
-    scene.add(mainLight1);
+    scene$1.add(mainLight1);
     const mainLight2 = new DirectionalLight(primColor,1);
     mainLight2.position.set(40,5,0);
-    scene.add(mainLight2);
+    scene$1.add(mainLight2);
     const mainLight3 = new DirectionalLight(primColor,1);
     mainLight3.position.set(0,5,40);
-    scene.add(mainLight3);
+    scene$1.add(mainLight3);
     const mainLight4 = new DirectionalLight(primColor,1);
     mainLight4.position.set(40,-5,40);
-    scene.add(mainLight4);
+    scene$1.add(mainLight4);
     const mainLight5 = new DirectionalLight(primColor,1);
     mainLight5.position.set(0,-5,40);
-    scene.add(mainLight5);
+    scene$1.add(mainLight5);
     const mainLight6 = new DirectionalLight(primColor,1);
     mainLight6.position.set(40,-5,0);
-    scene.add(mainLight6);
+    scene$1.add(mainLight6);
     const gradLight1 = new DirectionalLight(gradColor,1);
     gradLight1.position.set(0,5,0);
-    scene.add(gradLight1);
+    scene$1.add(gradLight1);
     const gradLight2 = new DirectionalLight(gradColor,1);
     gradLight2.position.set(0,-5,0);
-    scene.add(gradLight2);
+    scene$1.add(gradLight2);
 
     let cubeObj = [];
     let posX = 0;
@@ -43053,64 +43285,42 @@ var app = (function () {
             cubeObj.push(cube3);
             cubeObj.push(cube4);
 
-            scene.add(cube1);
-            scene.add(cube2);
-            scene.add(cube3);
-            scene.add(cube4);
+            scene$1.add(cube1);
+            scene$1.add(cube2);
+            scene$1.add(cube3);
+            scene$1.add(cube4);
 
             posX+=4.2;
         }
         posZ+=2.2;
     }
 
+
     window.addEventListener('scroll',()=>{
         let currentScroll = window.scrollY/(document.body.scrollHeight-document.body.clientHeight);
-        console.log(currentScroll);
 
         const aboutYScroll= 0.30;
         const aboutXZScroll=0.15;
-        const skillYScroll = 0.55;
+        const skillYScroll = 0.45;
         if(currentScroll<=aboutXZScroll){
-            camera.position.x=25-cubicInOut(currentScroll/aboutXZScroll)*15;
-            camera.position.z=25-cubicInOut(currentScroll/aboutXZScroll)*15;
+            camera$1.position.x=25-cubicInOut(currentScroll/aboutXZScroll)*15;
+            camera$1.position.z=25-cubicInOut(currentScroll/aboutXZScroll)*15;
         }
         if(currentScroll>aboutXZScroll && currentScroll<aboutYScroll){
-            camera.position.y=5-cubicInOut((currentScroll-aboutXZScroll)/(aboutYScroll-aboutXZScroll))*15;
+            camera$1.position.y=5-cubicInOut((currentScroll-aboutXZScroll)/(aboutYScroll-aboutXZScroll))*15;
+            
         }
         if(currentScroll>aboutYScroll && currentScroll<skillYScroll){
-            camera.position.y= -10-cubicInOut((currentScroll-aboutYScroll)/(skillYScroll-aboutYScroll))*25;
+            camera$1.position.y= -10-cubicInOut((currentScroll-aboutYScroll)/(skillYScroll-aboutYScroll))*25;
         }
-        // let aboutScroll = 800;
-        // let aboutXZScroll = 0;
-        // console.log(window.pageYOffset,camera.position);
-        // if(window.pageYOffset<400){
-        //     aboutXZScroll=window.pageYOffset;
-        // }
-        // else if(window.pageYOffset>=400){
-        //     aboutXZScroll=400;
-        // }
-        // camera.position.x=25-cubicInOut(aboutXZScroll/(aboutScroll-400))*8;
-        // camera.position.z=25-cubicInOut(aboutXZScroll/(aboutScroll-400))*8;
-        // let aboutYScroll = 0;
-        // if(window.pageYOffset>=400 && window.pageYOffset<=800){
-        //     aboutYScroll=window.pageYOffset-400;
-        // }
-        // if(window.pageYOffset>800)aboutYScroll=400;
-        // camera.position.y=5-cubicInOut(aboutYScroll/(aboutScroll-400))*15;
-
-        // let skillScroll = 2050;
-        // let skillYScroll = 1350;
-
-        // if(window.pageYOffset>1350){
-        //     skillYScroll=window.pageYOffset;
-        // }
-        // if(skillYScroll>=skillScroll){
-        //     skillYScroll=skillScroll;
-        // }
-        // if(window.pageYOffset>1350){
-        //     camera.position.y=-10-cubicInOut((skillYScroll-1350)/(skillScroll-1550))*15;
-        // }
-        camera.lookAt(40,camera.position.y,40);
+        
+        if(currentScroll>0.45){
+            camera$1.position.set(10,-40,10);
+            camera$1.lookAt(0,-40,0);
+        }else {
+            camera$1.lookAt(40,camera$1.position.y,40);
+        }
+        
     });
     let maxHeight = [];
     for(let i = 0;i<cubeObj.length;i++){
@@ -43138,19 +43348,19 @@ var app = (function () {
     genRandomarr();
 
 
-    let oldWidth;
-    let oldHeight;
-    function resize(){
+    let oldWidth$1;
+    let oldHeight$1;
+    function resize$1(){
         let newWidth = innerWidth;
         let newHeight = innerHeight;
-        if(oldHeight === newHeight && oldWidth === newWidth)return;
+        if(oldHeight$1 === newHeight && oldWidth$1 === newWidth)return;
         
         renderer.setSize(newWidth,newHeight);
-        camera.aspect=newWidth/newHeight;
-        camera.updateProjectionMatrix();
+        camera$1.aspect=newWidth/newHeight;
+        camera$1.updateProjectionMatrix();
     }
-    function animate(){
-        resize();
+    function animate$1(){
+        resize$1();
         calcHeightCtr();
 
         for(let i =0;i<randomArr.length;i++){
@@ -43161,10 +43371,79 @@ var app = (function () {
                 cubeObj[i].position.y=-Math.sin(heightCounter/maxHeightCtr*2*Math.PI)*maxHeight[i]; 
             }
         }
-        renderer.render(scene,camera);
-        requestAnimationFrame(animate);
+        renderer.render(scene$1,camera$1);
+        requestAnimationFrame(animate$1);
     }
     renderer.domElement.id = 'canvasElement';
+    animate$1();
+
+    const renderer2 = new WebGLRenderer({alpha:true,antialias:true});
+    const camera = new PerspectiveCamera(75,innerWidth/innerHeight,0.1,1000);
+    const scene = new Scene();
+    renderer2.setSize(innerWidth,innerHeight);
+    camera.position.set(50,40,50);
+    camera.lookAt(0,0,0);
+
+    const speGeo = new SphereGeometry(5,32,32);
+    const pointsMaterial = new PointsMaterial({color:0x000000});
+    pointsMaterial.size=0.05;
+    pointsMaterial.transparent=true;
+    const sphere = new Points(speGeo,pointsMaterial);
+    sphere.position.set(0,0,0);
+    scene.add(sphere);
+
+
+    let orbittObj = [];
+    for(let i = 0;i<8;i++){
+        const orbitGeo = new RingGeometry(5.9*(i+1),5.92*(i+1),16*(i+1));
+        const orbitMat = new MeshBasicMaterial({color:0x000000,side: DoubleSide});
+        const orbit = new Mesh(orbitGeo,orbitMat);
+        orbit.rotation.x=Math.PI/2;
+
+        
+        const texture = new TextureLoader().load(`../images/skills/${i+1}.svg`);
+        const spriteMat = new SpriteMaterial({map:texture});
+        const sprite = new Sprite(spriteMat);
+        sprite.scale.set(5,5,1);
+        sprite.position.set(5.9*(i+1),0,0);
+        orbit.add(sprite);
+        orbittObj.push(orbit);
+        scene.add(orbit);
+    }
+
+    let oldWidth;
+    let oldHeight;
+    function resize(){
+        let newWidth = innerWidth;
+        let newHeight = innerHeight;
+        if(oldHeight === newHeight && oldWidth === newWidth)return;
+        
+        renderer2.setSize(newWidth,newHeight);
+        camera.aspect=newWidth/newHeight;
+        camera.updateProjectionMatrix();
+    }
+    let speedArr = [];
+    function genSpeedArr(){
+        for(let i = 0;i<orbittObj.length;i++){
+            let num = Math.random();
+            if(num/100 < 0.001)num*=10;
+
+            speedArr.push(num/100);
+        }
+    }
+    genSpeedArr();
+
+    function animate(){
+        resize();
+        
+    	
+        for(let i = 0;i<orbittObj.length;i++){
+            orbittObj[i].rotation.z+=speedArr[i];
+        }
+        sphere.rotation.y+=0.01;
+        renderer2.render(scene,camera);
+        requestAnimationFrame(animate);
+    }
     animate();
 
     /* src\NavBar.svelte generated by Svelte v3.46.3 */
@@ -43512,6 +43791,18 @@ var app = (function () {
     	let textarea;
     	let t6;
     	let input2;
+    	let t7;
+    	let a0;
+    	let img0;
+    	let img0_src_value;
+    	let t8;
+    	let a1;
+    	let img1;
+    	let img1_src_value;
+    	let t9;
+    	let a2;
+    	let img2;
+    	let img2_src_value;
 
     	const block = {
     		c: function create() {
@@ -43531,28 +43822,55 @@ var app = (function () {
     			textarea = element("textarea");
     			t6 = space();
     			input2 = element("input");
+    			t7 = space();
+    			a0 = element("a");
+    			img0 = element("img");
+    			t8 = space();
+    			a1 = element("a");
+    			img1 = element("img");
+    			t9 = space();
+    			a2 = element("a");
+    			img2 = element("img");
     			add_location(h10, file$1, 6, 8, 85);
-    			attr_dev(div0, "class", "leftcol svelte-o8v6ws");
+    			attr_dev(div0, "class", "leftcol svelte-alc8tx");
     			add_location(div0, file$1, 5, 4, 54);
     			add_location(h11, file$1, 9, 8, 163);
     			attr_dev(input0, "type", "text");
     			attr_dev(input0, "placeholder", "Name");
-    			attr_dev(input0, "class", "name-form svelte-o8v6ws");
+    			attr_dev(input0, "class", "name-form svelte-alc8tx");
     			add_location(input0, file$1, 10, 8, 214);
     			attr_dev(input1, "type", "email");
     			attr_dev(input1, "placeholder", "Email");
-    			attr_dev(input1, "class", "email-form svelte-o8v6ws");
+    			attr_dev(input1, "class", "email-form svelte-alc8tx");
     			add_location(input1, file$1, 11, 8, 280);
     			attr_dev(textarea, "placeholder", "Leave a message");
-    			attr_dev(textarea, "class", "message-form svelte-o8v6ws");
+    			attr_dev(textarea, "class", "message-form svelte-alc8tx");
     			add_location(textarea, file$1, 12, 8, 349);
     			attr_dev(input2, "type", "button");
     			input2.value = "Submit";
-    			attr_dev(input2, "class", "button-form svelte-o8v6ws");
+    			attr_dev(input2, "class", "button-form svelte-alc8tx");
     			add_location(input2, file$1, 13, 8, 431);
-    			attr_dev(div1, "class", "rightcol svelte-o8v6ws");
+    			if (!src_url_equal(img0.src, img0_src_value = "../images/linkedin.svg")) attr_dev(img0, "src", img0_src_value);
+    			attr_dev(img0, "alt", "linkedin");
+    			add_location(img0, file$1, 14, 66, 558);
+    			attr_dev(a0, "href", "https://www.linkedin.com/in/thisisankitkhurana/");
+    			attr_dev(a0, "class", "svelte-alc8tx");
+    			add_location(a0, file$1, 14, 8, 500);
+    			if (!src_url_equal(img1.src, img1_src_value = "../images/github.svg")) attr_dev(img1, "src", img1_src_value);
+    			attr_dev(img1, "alt", "github");
+    			add_location(img1, file$1, 15, 46, 660);
+    			attr_dev(a1, "href", "https://github.com/AnkitGMF");
+    			attr_dev(a1, "class", "svelte-alc8tx");
+    			add_location(a1, file$1, 15, 8, 622);
+    			if (!src_url_equal(img2.src, img2_src_value = "../images/mail.svg")) attr_dev(img2, "src", img2_src_value);
+    			attr_dev(img2, "alt", "mail");
+    			add_location(img2, file$1, 16, 53, 765);
+    			attr_dev(a2, "href", "mailto: ankitkhurana8255@gmail.com");
+    			attr_dev(a2, "class", "svelte-alc8tx");
+    			add_location(a2, file$1, 16, 8, 720);
+    			attr_dev(div1, "class", "rightcol svelte-alc8tx");
     			add_location(div1, file$1, 8, 4, 131);
-    			attr_dev(div2, "class", "container svelte-o8v6ws");
+    			attr_dev(div2, "class", "container svelte-alc8tx");
     			add_location(div2, file$1, 4, 0, 25);
     		},
     		l: function claim(nodes) {
@@ -43573,6 +43891,15 @@ var app = (function () {
     			append_dev(div1, textarea);
     			append_dev(div1, t6);
     			append_dev(div1, input2);
+    			append_dev(div1, t7);
+    			append_dev(div1, a0);
+    			append_dev(a0, img0);
+    			append_dev(div1, t8);
+    			append_dev(div1, a1);
+    			append_dev(a1, img1);
+    			append_dev(div1, t9);
+    			append_dev(div1, a2);
+    			append_dev(a2, img2);
     		},
     		p: noop,
     		i: noop,
@@ -43642,6 +43969,7 @@ var app = (function () {
     	let contact;
     	let t9;
     	let div5;
+    	let br;
     	let current;
     	navbar = new NavBar({ $$inline: true });
     	about = new About({ $$inline: true });
@@ -43671,24 +43999,25 @@ var app = (function () {
     			create_component(contact.$$.fragment);
     			t9 = space();
     			div5 = element("div");
-    			div5.textContent = "a";
-    			attr_dev(h10, "class", "main-head svelte-eorutt");
-    			add_location(h10, file, 16, 1, 329);
-    			attr_dev(p, "class", "main-para svelte-eorutt");
-    			add_location(p, file, 17, 1, 392);
-    			attr_dev(div0, "class", "container svelte-eorutt");
-    			add_location(div0, file, 15, 0, 304);
-    			attr_dev(div1, "class", "home svelte-eorutt");
-    			add_location(div1, file, 19, 0, 462);
-    			attr_dev(div2, "class", "about svelte-eorutt");
-    			add_location(div2, file, 20, 0, 510);
-    			add_location(h11, file, 21, 20, 564);
-    			attr_dev(div3, "class", "skills svelte-eorutt");
-    			add_location(div3, file, 21, 0, 544);
-    			attr_dev(div4, "class", "contact svelte-eorutt");
-    			add_location(div4, file, 22, 0, 586);
-    			attr_dev(div5, "class", "footer svelte-eorutt");
-    			add_location(div5, file, 25, 0, 627);
+    			br = element("br");
+    			attr_dev(h10, "class", "main-head svelte-vydp1a");
+    			add_location(h10, file, 19, 1, 443);
+    			attr_dev(p, "class", "main-para svelte-vydp1a");
+    			add_location(p, file, 20, 1, 506);
+    			attr_dev(div0, "class", "container svelte-vydp1a");
+    			add_location(div0, file, 18, 0, 418);
+    			attr_dev(div1, "class", "home svelte-vydp1a");
+    			add_location(div1, file, 22, 0, 576);
+    			attr_dev(div2, "class", "about svelte-vydp1a");
+    			add_location(div2, file, 23, 0, 624);
+    			add_location(h11, file, 24, 48, 706);
+    			attr_dev(div3, "class", "skills svelte-vydp1a");
+    			add_location(div3, file, 24, 0, 658);
+    			attr_dev(div4, "class", "contact svelte-vydp1a");
+    			add_location(div4, file, 25, 0, 728);
+    			add_location(br, file, 28, 20, 789);
+    			attr_dev(div5, "class", "footer svelte-vydp1a");
+    			add_location(div5, file, 28, 0, 769);
     		},
     		l: function claim(nodes) {
     			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
@@ -43702,18 +44031,20 @@ var app = (function () {
     			append_dev(div0, p);
     			insert_dev(target, t4, anchor);
     			insert_dev(target, div1, anchor);
-    			/*div1_binding*/ ctx[1](div1);
+    			/*div1_binding*/ ctx[2](div1);
     			insert_dev(target, t5, anchor);
     			insert_dev(target, div2, anchor);
     			mount_component(about, div2, null);
     			insert_dev(target, t6, anchor);
     			insert_dev(target, div3, anchor);
     			append_dev(div3, h11);
+    			/*div3_binding*/ ctx[3](div3);
     			insert_dev(target, t8, anchor);
     			insert_dev(target, div4, anchor);
     			mount_component(contact, div4, null);
     			insert_dev(target, t9, anchor);
     			insert_dev(target, div5, anchor);
+    			append_dev(div5, br);
     			current = true;
     		},
     		p: noop,
@@ -43736,12 +44067,13 @@ var app = (function () {
     			if (detaching) detach_dev(div0);
     			if (detaching) detach_dev(t4);
     			if (detaching) detach_dev(div1);
-    			/*div1_binding*/ ctx[1](null);
+    			/*div1_binding*/ ctx[2](null);
     			if (detaching) detach_dev(t5);
     			if (detaching) detach_dev(div2);
     			destroy_component(about);
     			if (detaching) detach_dev(t6);
     			if (detaching) detach_dev(div3);
+    			/*div3_binding*/ ctx[3](null);
     			if (detaching) detach_dev(t8);
     			if (detaching) detach_dev(div4);
     			destroy_component(contact);
@@ -43765,9 +44097,11 @@ var app = (function () {
     	let { $$slots: slots = {}, $$scope } = $$props;
     	validate_slots('App', slots, []);
     	let domElement;
+    	let skillDomElement;
 
     	onMount(() => {
     		domElement.append(renderer.domElement);
+    		skillDomElement.append(renderer2.domElement);
     	});
 
     	const writable_props = [];
@@ -43783,24 +44117,34 @@ var app = (function () {
     		});
     	}
 
+    	function div3_binding($$value) {
+    		binding_callbacks[$$value ? 'unshift' : 'push'](() => {
+    			skillDomElement = $$value;
+    			$$invalidate(1, skillDomElement);
+    		});
+    	}
+
     	$$self.$capture_state = () => ({
     		renderer,
+    		renderer2,
     		onMount,
     		NavBar,
     		About,
     		Contact,
-    		domElement
+    		domElement,
+    		skillDomElement
     	});
 
     	$$self.$inject_state = $$props => {
     		if ('domElement' in $$props) $$invalidate(0, domElement = $$props.domElement);
+    		if ('skillDomElement' in $$props) $$invalidate(1, skillDomElement = $$props.skillDomElement);
     	};
 
     	if ($$props && "$$inject" in $$props) {
     		$$self.$inject_state($$props.$$inject);
     	}
 
-    	return [domElement, div1_binding];
+    	return [domElement, skillDomElement, div1_binding, div3_binding];
     }
 
     class App extends SvelteComponentDev {
