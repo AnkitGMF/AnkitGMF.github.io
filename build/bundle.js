@@ -53,6 +53,10 @@ var app = (function () {
     function space() {
         return text(' ');
     }
+    function listen(node, event, handler, options) {
+        node.addEventListener(event, handler, options);
+        return () => node.removeEventListener(event, handler, options);
+    }
     function attr(node, attribute, value) {
         if (value == null)
             node.removeAttribute(attribute);
@@ -337,6 +341,19 @@ var app = (function () {
     function detach_dev(node) {
         dispatch_dev('SvelteDOMRemove', { node });
         detach(node);
+    }
+    function listen_dev(node, event, handler, options, has_prevent_default, has_stop_propagation) {
+        const modifiers = options === true ? ['capture'] : options ? Array.from(Object.keys(options)) : [];
+        if (has_prevent_default)
+            modifiers.push('preventDefault');
+        if (has_stop_propagation)
+            modifiers.push('stopPropagation');
+        dispatch_dev('SvelteDOMAddEventListener', { node, event, handler, modifiers });
+        const dispose = listen(node, event, handler, options);
+        return () => {
+            dispatch_dev('SvelteDOMRemoveEventListener', { node, event, handler, modifiers });
+            dispose();
+        };
     }
     function attr_dev(node, attribute, value) {
         attr(node, attribute, value);
@@ -43469,18 +43486,27 @@ var app = (function () {
     	let t0;
     	let span;
     	let t2;
+    	let img0;
+    	let img0_src_value;
+    	let t3;
+    	let nav;
+    	let img1;
+    	let img1_src_value;
+    	let t4;
     	let ul;
     	let li0;
     	let a1;
-    	let t4;
+    	let t6;
     	let li1;
     	let a2;
-    	let t6;
+    	let t8;
     	let li2;
     	let a3;
-    	let t8;
+    	let t10;
     	let li3;
     	let a4;
+    	let mounted;
+    	let dispose;
 
     	const block = {
     		c: function create() {
@@ -43492,51 +43518,70 @@ var app = (function () {
     			span = element("span");
     			span.textContent = "Khurana";
     			t2 = space();
+    			img0 = element("img");
+    			t3 = space();
+    			nav = element("nav");
+    			img1 = element("img");
+    			t4 = space();
     			ul = element("ul");
     			li0 = element("li");
     			a1 = element("a");
     			a1.textContent = "Home";
-    			t4 = space();
+    			t6 = space();
     			li1 = element("li");
     			a2 = element("a");
     			a2.textContent = "About";
-    			t6 = space();
+    			t8 = space();
     			li2 = element("li");
     			a3 = element("a");
     			a3.textContent = "Skills";
-    			t8 = space();
+    			t10 = space();
     			li3 = element("li");
     			a4 = element("a");
     			a4.textContent = "Contact";
-    			attr_dev(span, "class", "acsent-color svelte-1hd7qql");
-    			add_location(span, file$4, 36, 32, 1146);
+    			attr_dev(span, "class", "acsent-color svelte-1ceys7k");
+    			add_location(span, file$4, 44, 32, 1330);
     			attr_dev(a0, "href", "#home");
-    			attr_dev(a0, "class", "svelte-1hd7qql");
-    			add_location(a0, file$4, 36, 11, 1125);
-    			attr_dev(p, "class", "svelte-1hd7qql");
-    			add_location(p, file$4, 36, 8, 1122);
-    			attr_dev(a1, "class", "acsent-color svelte-1hd7qql");
+    			attr_dev(a0, "class", "svelte-1ceys7k");
+    			add_location(a0, file$4, 44, 11, 1309);
+    			attr_dev(p, "class", "svelte-1ceys7k");
+    			add_location(p, file$4, 44, 8, 1306);
+    			if (!src_url_equal(img0.src, img0_src_value = "../images/open-menue.svg")) attr_dev(img0, "src", img0_src_value);
+    			attr_dev(img0, "alt", "open menue");
+    			attr_dev(img0, "class", "svelte-1ceys7k");
+    			add_location(img0, file$4, 45, 8, 1389);
+    			if (!src_url_equal(img1.src, img1_src_value = "../images/close-menue.svg")) attr_dev(img1, "src", img1_src_value);
+    			attr_dev(img1, "alt", "close menue");
+    			attr_dev(img1, "class", "svelte-1ceys7k");
+    			add_location(img1, file$4, 47, 12, 1530);
+    			attr_dev(a1, "class", "acsent-color svelte-1ceys7k");
     			attr_dev(a1, "href", "#home");
-    			add_location(a1, file$4, 38, 16, 1227);
-    			add_location(li0, file$4, 38, 12, 1223);
+    			add_location(a1, file$4, 49, 20, 1667);
+    			attr_dev(li0, "class", "svelte-1ceys7k");
+    			add_location(li0, file$4, 49, 16, 1663);
     			attr_dev(a2, "href", "#about");
-    			attr_dev(a2, "class", "svelte-1hd7qql");
-    			add_location(a2, file$4, 39, 16, 1320);
-    			add_location(li1, file$4, 39, 12, 1316);
+    			attr_dev(a2, "class", "svelte-1ceys7k");
+    			add_location(a2, file$4, 50, 20, 1764);
+    			attr_dev(li1, "class", "svelte-1ceys7k");
+    			add_location(li1, file$4, 50, 16, 1760);
     			attr_dev(a3, "href", "#skills");
-    			attr_dev(a3, "class", "svelte-1hd7qql");
-    			add_location(a3, file$4, 40, 16, 1393);
-    			add_location(li2, file$4, 40, 12, 1389);
+    			attr_dev(a3, "class", "svelte-1ceys7k");
+    			add_location(a3, file$4, 51, 20, 1841);
+    			attr_dev(li2, "class", "svelte-1ceys7k");
+    			add_location(li2, file$4, 51, 16, 1837);
     			attr_dev(a4, "href", "#contact");
-    			attr_dev(a4, "class", "svelte-1hd7qql");
-    			add_location(a4, file$4, 41, 16, 1469);
-    			add_location(li3, file$4, 41, 12, 1465);
-    			attr_dev(ul, "class", "svelte-1hd7qql");
-    			add_location(ul, file$4, 37, 8, 1205);
-    			attr_dev(div0, "class", "nav-bar svelte-1hd7qql");
-    			add_location(div0, file$4, 35, 4, 1091);
-    			attr_dev(div1, "class", "container svelte-1hd7qql");
-    			add_location(div1, file$4, 34, 0, 1062);
+    			attr_dev(a4, "class", "svelte-1ceys7k");
+    			add_location(a4, file$4, 52, 20, 1921);
+    			attr_dev(li3, "class", "svelte-1ceys7k");
+    			add_location(li3, file$4, 52, 16, 1917);
+    			attr_dev(ul, "class", "svelte-1ceys7k");
+    			add_location(ul, file$4, 48, 12, 1641);
+    			attr_dev(nav, "class", "svelte-1ceys7k");
+    			add_location(nav, file$4, 46, 8, 1493);
+    			attr_dev(div0, "class", "nav-bar svelte-1ceys7k");
+    			add_location(div0, file$4, 43, 4, 1275);
+    			attr_dev(div1, "class", "container svelte-1ceys7k");
+    			add_location(div1, file$4, 42, 0, 1246);
     		},
     		l: function claim(nodes) {
     			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
@@ -43549,32 +43594,54 @@ var app = (function () {
     			append_dev(a0, t0);
     			append_dev(a0, span);
     			append_dev(div0, t2);
-    			append_dev(div0, ul);
+    			append_dev(div0, img0);
+    			/*img0_binding*/ ctx[9](img0);
+    			append_dev(div0, t3);
+    			append_dev(div0, nav);
+    			append_dev(nav, img1);
+    			/*img1_binding*/ ctx[10](img1);
+    			append_dev(nav, t4);
+    			append_dev(nav, ul);
     			append_dev(ul, li0);
     			append_dev(li0, a1);
-    			/*a1_binding*/ ctx[4](a1);
-    			append_dev(ul, t4);
+    			/*a1_binding*/ ctx[11](a1);
+    			append_dev(ul, t6);
     			append_dev(ul, li1);
     			append_dev(li1, a2);
-    			/*a2_binding*/ ctx[5](a2);
-    			append_dev(ul, t6);
+    			/*a2_binding*/ ctx[12](a2);
+    			append_dev(ul, t8);
     			append_dev(ul, li2);
     			append_dev(li2, a3);
-    			/*a3_binding*/ ctx[6](a3);
-    			append_dev(ul, t8);
+    			/*a3_binding*/ ctx[13](a3);
+    			append_dev(ul, t10);
     			append_dev(ul, li3);
     			append_dev(li3, a4);
-    			/*a4_binding*/ ctx[7](a4);
+    			/*a4_binding*/ ctx[14](a4);
+    			/*nav_binding*/ ctx[15](nav);
+
+    			if (!mounted) {
+    				dispose = [
+    					listen_dev(img0, "click", /*openMenue*/ ctx[7], false, false, false),
+    					listen_dev(img1, "click", /*closeMenue*/ ctx[8], false, false, false)
+    				];
+
+    				mounted = true;
+    			}
     		},
     		p: noop,
     		i: noop,
     		o: noop,
     		d: function destroy(detaching) {
     			if (detaching) detach_dev(div1);
-    			/*a1_binding*/ ctx[4](null);
-    			/*a2_binding*/ ctx[5](null);
-    			/*a3_binding*/ ctx[6](null);
-    			/*a4_binding*/ ctx[7](null);
+    			/*img0_binding*/ ctx[9](null);
+    			/*img1_binding*/ ctx[10](null);
+    			/*a1_binding*/ ctx[11](null);
+    			/*a2_binding*/ ctx[12](null);
+    			/*a3_binding*/ ctx[13](null);
+    			/*a4_binding*/ ctx[14](null);
+    			/*nav_binding*/ ctx[15](null);
+    			mounted = false;
+    			run_all(dispose);
     		}
     	};
 
@@ -43625,11 +43692,37 @@ var app = (function () {
     		}
     	});
 
+    	let open;
+    	let close;
+    	let menue;
+
+    	function openMenue() {
+    		$$invalidate(6, menue.style.display = "flex", menue);
+    	}
+
+    	function closeMenue() {
+    		$$invalidate(6, menue.style.display = "none", menue);
+    	}
+
     	const writable_props = [];
 
     	Object.keys($$props).forEach(key => {
     		if (!~writable_props.indexOf(key) && key.slice(0, 2) !== '$$' && key !== 'slot') console.warn(`<NavBar> was created with unknown prop '${key}'`);
     	});
+
+    	function img0_binding($$value) {
+    		binding_callbacks[$$value ? 'unshift' : 'push'](() => {
+    			open = $$value;
+    			$$invalidate(4, open);
+    		});
+    	}
+
+    	function img1_binding($$value) {
+    		binding_callbacks[$$value ? 'unshift' : 'push'](() => {
+    			close = $$value;
+    			$$invalidate(5, close);
+    		});
+    	}
 
     	function a1_binding($$value) {
     		binding_callbacks[$$value ? 'unshift' : 'push'](() => {
@@ -43659,11 +43752,23 @@ var app = (function () {
     		});
     	}
 
+    	function nav_binding($$value) {
+    		binding_callbacks[$$value ? 'unshift' : 'push'](() => {
+    			menue = $$value;
+    			$$invalidate(6, menue);
+    		});
+    	}
+
     	$$self.$capture_state = () => ({
     		homeElem,
     		aboutElem,
     		skillsElem,
-    		contactElem
+    		contactElem,
+    		open,
+    		close,
+    		menue,
+    		openMenue,
+    		closeMenue
     	});
 
     	$$self.$inject_state = $$props => {
@@ -43671,6 +43776,9 @@ var app = (function () {
     		if ('aboutElem' in $$props) $$invalidate(1, aboutElem = $$props.aboutElem);
     		if ('skillsElem' in $$props) $$invalidate(2, skillsElem = $$props.skillsElem);
     		if ('contactElem' in $$props) $$invalidate(3, contactElem = $$props.contactElem);
+    		if ('open' in $$props) $$invalidate(4, open = $$props.open);
+    		if ('close' in $$props) $$invalidate(5, close = $$props.close);
+    		if ('menue' in $$props) $$invalidate(6, menue = $$props.menue);
     	};
 
     	if ($$props && "$$inject" in $$props) {
@@ -43682,10 +43790,18 @@ var app = (function () {
     		aboutElem,
     		skillsElem,
     		contactElem,
+    		open,
+    		close,
+    		menue,
+    		openMenue,
+    		closeMenue,
+    		img0_binding,
+    		img1_binding,
     		a1_binding,
     		a2_binding,
     		a3_binding,
-    		a4_binding
+    		a4_binding,
+    		nav_binding
     	];
     }
 
@@ -43728,16 +43844,16 @@ var app = (function () {
     			p.textContent = "-Hi I'm Ankit. I am doing my Bachelors in Technology from Netaji Subhas University of Technology and my specialization is Instrumentation and Control Engineering. I am very passionate about developing programs and writing highly efficient code. I have worked on several large porjects with many frameworks and have a great knowledge of multiple APIs.";
     			t3 = space();
     			img = element("img");
-    			attr_dev(h1, "class", "svelte-1qvxbdg");
+    			attr_dev(h1, "class", "svelte-17ng7ng");
     			add_location(h1, file$3, 5, 4, 54);
     			add_location(p, file$3, 7, 8, 108);
     			if (!src_url_equal(img.src, img_src_value = "../images/code.svg")) attr_dev(img, "src", img_src_value);
-    			attr_dev(img, "class", "code-svg svelte-1qvxbdg");
+    			attr_dev(img, "class", "code-svg svelte-17ng7ng");
     			attr_dev(img, "alt", "code svg");
     			add_location(img, file$3, 8, 8, 475);
-    			attr_dev(div0, "class", "about-para svelte-1qvxbdg");
+    			attr_dev(div0, "class", "about-para svelte-17ng7ng");
     			add_location(div0, file$3, 6, 4, 74);
-    			attr_dev(div1, "class", "container svelte-1qvxbdg");
+    			attr_dev(div1, "class", "container svelte-17ng7ng");
     			add_location(div1, file$3, 4, 0, 25);
     		},
     		l: function claim(nodes) {
@@ -43890,6 +44006,7 @@ var app = (function () {
     			add_location(li3, file$2, 11, 12, 214);
     			add_location(li4, file$2, 12, 12, 243);
     			add_location(li5, file$2, 13, 12, 270);
+    			attr_dev(ul0, "class", "svelte-12ws9wm");
     			add_location(ul0, file$2, 7, 8, 113);
     			attr_dev(div0, "class", "leftcol");
     			add_location(div0, file$2, 5, 4, 54);
@@ -43900,10 +44017,11 @@ var app = (function () {
     			add_location(li9, file$2, 22, 12, 490);
     			add_location(li10, file$2, 23, 12, 520);
     			add_location(li11, file$2, 24, 12, 549);
+    			attr_dev(ul1, "class", "svelte-12ws9wm");
     			add_location(ul1, file$2, 18, 8, 388);
     			attr_dev(div1, "class", "rightcol");
     			add_location(div1, file$2, 16, 4, 315);
-    			attr_dev(div2, "class", "container svelte-12ry851");
+    			attr_dev(div2, "class", "container svelte-12ws9wm");
     			add_location(div2, file$2, 4, 0, 25);
     		},
     		l: function claim(nodes) {
@@ -44036,26 +44154,27 @@ var app = (function () {
     			t5 = space();
     			script = element("script");
     			script.textContent = "var ifr = document.getElementById(\"JotFormIFrame-220342371395048\");\r\n            if (ifr) {\r\n                var src = ifr.src;\r\n                var iframeParams = [];\r\n                if (\r\n                    window.location.href &&\r\n                    window.location.href.indexOf(\"?\") > -1\r\n                ) {\r\n                    iframeParams = iframeParams.concat(\r\n                        window.location.href\r\n                            .substr(window.location.href.indexOf(\"?\") + 1)\r\n                            .split(\"&\")\r\n                    );\r\n                }\r\n                if (src && src.indexOf(\"?\") > -1) {\r\n                    iframeParams = iframeParams.concat(\r\n                        src.substr(src.indexOf(\"?\") + 1).split(\"&\")\r\n                    );\r\n                    src = src.substr(0, src.indexOf(\"?\"));\r\n                }\r\n                iframeParams.push(\"isIframeEmbed=1\");\r\n                ifr.src = src + \"?\" + iframeParams.join(\"&\");\r\n            }\r\n            window.handleIFrameMessage = function (e) {\r\n                if (typeof e.data === \"object\") {\r\n                    return;\r\n                }\r\n                var args = e.data.split(\":\");\r\n                if (args.length > 2) {\r\n                    iframe = document.getElementById(\r\n                        \"JotFormIFrame-\" + args[args.length - 1]\r\n                    );\r\n                } else {\r\n                    iframe = document.getElementById(\"JotFormIFrame\");\r\n                }\r\n                if (!iframe) {\r\n                    return;\r\n                }\r\n                switch (args[0]) {\r\n                    case \"scrollIntoView\":\r\n                        iframe.scrollIntoView();\r\n                        break;\r\n                    case \"setHeight\":\r\n                        iframe.style.height = args[1] + \"px\";\r\n                        break;\r\n                    case \"collapseErrorPage\":\r\n                        if (iframe.clientHeight > window.innerHeight) {\r\n                            iframe.style.height = window.innerHeight + \"px\";\r\n                        }\r\n                        break;\r\n                    case \"reloadPage\":\r\n                        window.location.reload();\r\n                        break;\r\n                    case \"loadScript\":\r\n                        if (\r\n                            !window.isPermitted(e.origin, [\r\n                                \"jotform.com\",\r\n                                \"jotform.pro\",\r\n                            ])\r\n                        ) {\r\n                            break;\r\n                        }\r\n                        var src = args[1];\r\n                        if (args.length > 3) {\r\n                            src = args[1] + \":\" + args[2];\r\n                        }\r\n                        var script = document.createElement(\"script\");\r\n                        script.src = src;\r\n                        script.type = \"text/javascript\";\r\n                        document.body.appendChild(script);\r\n                        break;\r\n                    case \"exitFullscreen\":\r\n                        if (window.document.exitFullscreen)\r\n                            window.document.exitFullscreen();\r\n                        else if (window.document.mozCancelFullScreen)\r\n                            window.document.mozCancelFullScreen();\r\n                        else if (window.document.mozCancelFullscreen)\r\n                            window.document.mozCancelFullScreen();\r\n                        else if (window.document.webkitExitFullscreen)\r\n                            window.document.webkitExitFullscreen();\r\n                        else if (window.document.msExitFullscreen)\r\n                            window.document.msExitFullscreen();\r\n                        break;\r\n                }\r\n                var isJotForm = e.origin.indexOf(\"jotform\") > -1 ? true : false;\r\n                if (\r\n                    isJotForm &&\r\n                    \"contentWindow\" in iframe &&\r\n                    \"postMessage\" in iframe.contentWindow\r\n                ) {\r\n                    var urls = {\r\n                        docurl: encodeURIComponent(document.URL),\r\n                        referrer: encodeURIComponent(document.referrer),\r\n                    };\r\n                    iframe.contentWindow.postMessage(\r\n                        JSON.stringify({ type: \"urls\", value: urls }),\r\n                        \"*\"\r\n                    );\r\n                }\r\n            };\r\n            window.isPermitted = function (originUrl, whitelisted_domains) {\r\n                var url = document.createElement(\"a\");\r\n                url.href = originUrl;\r\n                var hostname = url.hostname;\r\n                var result = false;\r\n                if (typeof hostname !== \"undefined\") {\r\n                    whitelisted_domains.forEach(function (element) {\r\n                        if (\r\n                            hostname.slice(-1 * element.length - 1) ===\r\n                                \".\".concat(element) ||\r\n                            hostname === element\r\n                        ) {\r\n                            result = true;\r\n                        }\r\n                    });\r\n                    return result;\r\n                }\r\n            };\r\n            if (window.addEventListener) {\r\n                window.addEventListener(\"message\", handleIFrameMessage, false);\r\n            } else if (window.attachEvent) {\r\n                window.attachEvent(\"onmessage\", handleIFrameMessage);\r\n            }";
+    			attr_dev(h1, "class", "svelte-aonx7s");
     			add_location(h1, file$1, 5, 8, 83);
-    			attr_dev(div0, "class", "leftcol svelte-d31dph");
+    			attr_dev(div0, "class", "leftcol svelte-aonx7s");
     			add_location(div0, file$1, 4, 4, 52);
     			if (!src_url_equal(img0.src, img0_src_value = "../images/linkedin.svg")) attr_dev(img0, "src", img0_src_value);
     			attr_dev(img0, "alt", "linkedin");
     			add_location(img0, file$1, 14, 13, 579);
     			attr_dev(a0, "href", "https://www.linkedin.com/in/thisisankitkhurana/");
-    			attr_dev(a0, "class", "svelte-d31dph");
+    			attr_dev(a0, "class", "svelte-aonx7s");
     			add_location(a0, file$1, 13, 8, 507);
     			if (!src_url_equal(img1.src, img1_src_value = "../images/github.svg")) attr_dev(img1, "src", img1_src_value);
     			attr_dev(img1, "alt", "github");
     			add_location(img1, file$1, 17, 13, 706);
     			attr_dev(a1, "href", "https://github.com/AnkitGMF");
-    			attr_dev(a1, "class", "svelte-d31dph");
+    			attr_dev(a1, "class", "svelte-aonx7s");
     			add_location(a1, file$1, 16, 8, 654);
     			if (!src_url_equal(img2.src, img2_src_value = "../images/mail.svg")) attr_dev(img2, "src", img2_src_value);
     			attr_dev(img2, "alt", "mail");
     			add_location(img2, file$1, 20, 13, 836);
     			attr_dev(a2, "href", "mailto: ankitkhurana8255@gmail.com");
-    			attr_dev(a2, "class", "svelte-d31dph");
+    			attr_dev(a2, "class", "svelte-aonx7s");
     			add_location(a2, file$1, 19, 8, 777);
     			attr_dev(iframe, "id", "JotFormIFrame-220342371395048");
     			attr_dev(iframe, "title", "Fill This Form To Send A Message");
@@ -44072,9 +44191,9 @@ var app = (function () {
     			add_location(iframe, file$1, 23, 8, 905);
     			attr_dev(script, "type", "text/javascript");
     			add_location(script, file$1, 38, 8, 1411);
-    			attr_dev(div1, "class", "rightcol svelte-d31dph");
+    			attr_dev(div1, "class", "rightcol svelte-aonx7s");
     			add_location(div1, file$1, 7, 4, 129);
-    			attr_dev(div2, "class", "container svelte-d31dph");
+    			attr_dev(div2, "class", "container svelte-aonx7s");
     			add_location(div2, file$1, 3, 0, 23);
     		},
     		l: function claim(nodes) {
@@ -44215,35 +44334,35 @@ var app = (function () {
     			t9 = space();
     			div5 = element("div");
     			br7 = element("br");
-    			attr_dev(h10, "class", "main-head svelte-slbftb");
+    			attr_dev(h10, "class", "main-head svelte-h59jz0");
     			add_location(h10, file, 20, 1, 481);
-    			attr_dev(p, "class", "main-para svelte-slbftb");
+    			attr_dev(p, "class", "main-para svelte-h59jz0");
     			add_location(p, file, 21, 1, 544);
-    			attr_dev(div0, "class", "container svelte-slbftb");
+    			attr_dev(div0, "class", "container svelte-h59jz0");
     			add_location(div0, file, 19, 0, 456);
-    			attr_dev(div1, "class", "home svelte-slbftb");
+    			attr_dev(div1, "class", "home svelte-h59jz0");
     			attr_dev(div1, "id", "home");
     			add_location(div1, file, 23, 0, 614);
     			attr_dev(br0, "id", "about");
     			add_location(br0, file, 24, 20, 691);
-    			attr_dev(div2, "class", "about svelte-slbftb");
+    			attr_dev(div2, "class", "about svelte-h59jz0");
     			add_location(div2, file, 24, 0, 671);
     			attr_dev(br1, "id", "skills");
     			add_location(br1, file, 25, 49, 771);
     			add_location(br2, file, 25, 66, 788);
     			add_location(br3, file, 25, 71, 793);
-    			attr_dev(h11, "class", "skills-head svelte-slbftb");
+    			attr_dev(h11, "class", "skills-head svelte-h59jz0");
     			add_location(h11, file, 25, 76, 798);
-    			attr_dev(div3, "class", "skills svelte-slbftb");
+    			attr_dev(div3, "class", "skills svelte-h59jz0");
     			add_location(div3, file, 25, 0, 722);
     			attr_dev(br4, "id", "contact");
     			add_location(br4, file, 26, 22, 872);
     			add_location(br5, file, 26, 40, 890);
     			add_location(br6, file, 26, 45, 895);
-    			attr_dev(div4, "class", "contact svelte-slbftb");
+    			attr_dev(div4, "class", "contact svelte-h59jz0");
     			add_location(div4, file, 26, 0, 850);
     			add_location(br7, file, 27, 20, 937);
-    			attr_dev(div5, "class", "footer svelte-slbftb");
+    			attr_dev(div5, "class", "footer svelte-h59jz0");
     			add_location(div5, file, 27, 0, 917);
     		},
     		l: function claim(nodes) {
