@@ -44006,7 +44006,7 @@ var app = (function () {
     			add_location(li3, file$2, 11, 12, 214);
     			add_location(li4, file$2, 12, 12, 243);
     			add_location(li5, file$2, 13, 12, 270);
-    			attr_dev(ul0, "class", "svelte-12ws9wm");
+    			attr_dev(ul0, "class", "svelte-agm7v0");
     			add_location(ul0, file$2, 7, 8, 113);
     			attr_dev(div0, "class", "leftcol");
     			add_location(div0, file$2, 5, 4, 54);
@@ -44017,11 +44017,11 @@ var app = (function () {
     			add_location(li9, file$2, 22, 12, 490);
     			add_location(li10, file$2, 23, 12, 520);
     			add_location(li11, file$2, 24, 12, 549);
-    			attr_dev(ul1, "class", "svelte-12ws9wm");
+    			attr_dev(ul1, "class", "svelte-agm7v0");
     			add_location(ul1, file$2, 18, 8, 388);
     			attr_dev(div1, "class", "rightcol");
     			add_location(div1, file$2, 16, 4, 315);
-    			attr_dev(div2, "class", "container svelte-12ws9wm");
+    			attr_dev(div2, "class", "container svelte-agm7v0");
     			add_location(div2, file$2, 4, 0, 25);
     		},
     		l: function claim(nodes) {
@@ -44334,35 +44334,35 @@ var app = (function () {
     			t9 = space();
     			div5 = element("div");
     			br7 = element("br");
-    			attr_dev(h10, "class", "main-head svelte-h59jz0");
+    			attr_dev(h10, "class", "main-head svelte-6sszg7");
     			add_location(h10, file, 20, 1, 481);
-    			attr_dev(p, "class", "main-para svelte-h59jz0");
+    			attr_dev(p, "class", "main-para svelte-6sszg7");
     			add_location(p, file, 21, 1, 544);
-    			attr_dev(div0, "class", "container svelte-h59jz0");
+    			attr_dev(div0, "class", "container svelte-6sszg7");
     			add_location(div0, file, 19, 0, 456);
-    			attr_dev(div1, "class", "home svelte-h59jz0");
+    			attr_dev(div1, "class", "home svelte-6sszg7");
     			attr_dev(div1, "id", "home");
     			add_location(div1, file, 23, 0, 614);
     			attr_dev(br0, "id", "about");
     			add_location(br0, file, 24, 20, 691);
-    			attr_dev(div2, "class", "about svelte-h59jz0");
+    			attr_dev(div2, "class", "about svelte-6sszg7");
     			add_location(div2, file, 24, 0, 671);
     			attr_dev(br1, "id", "skills");
     			add_location(br1, file, 25, 49, 771);
     			add_location(br2, file, 25, 66, 788);
     			add_location(br3, file, 25, 71, 793);
-    			attr_dev(h11, "class", "skills-head svelte-h59jz0");
+    			attr_dev(h11, "class", "skills-head svelte-6sszg7");
     			add_location(h11, file, 25, 76, 798);
-    			attr_dev(div3, "class", "skills svelte-h59jz0");
+    			attr_dev(div3, "class", "skills svelte-6sszg7");
     			add_location(div3, file, 25, 0, 722);
     			attr_dev(br4, "id", "contact");
     			add_location(br4, file, 26, 22, 872);
     			add_location(br5, file, 26, 40, 890);
     			add_location(br6, file, 26, 45, 895);
-    			attr_dev(div4, "class", "contact svelte-h59jz0");
+    			attr_dev(div4, "class", "contact svelte-6sszg7");
     			add_location(div4, file, 26, 0, 850);
     			add_location(br7, file, 27, 20, 937);
-    			attr_dev(div5, "class", "footer svelte-h59jz0");
+    			attr_dev(div5, "class", "footer svelte-6sszg7");
     			add_location(div5, file, 27, 0, 917);
     		},
     		l: function claim(nodes) {
